@@ -1,0 +1,186 @@
+<main class="page">
+  <section class="todo-card" aria-labelledby="todo-heading">
+    <header class="todo-header">
+      <p class="eyebrow">STAY ON TRACK</p>
+      <h1 id="todo-heading">My tasks</h1>
+      <p class="subtitle">A little progress adds up to a lot.</p>
+      <div class="user-bar">
+        <span>Signed in as <strong>{{ authService.currentUser()?.id }}</strong></span>
+        <button type="button" class="logout-button" (click)="logout()">Log out</button>
+      </div>
+      <p class="task-count" aria-live="polite">
+        {{ todos().length }} total · {{ activeTodoCount }} active · {{ completedTodoCount }} completed
+      </p>
+    </header>
+
+    <form class="add-form" (submit)="$event.preventDefault(); addTodo()">
+      <label class="visually-hidden" for="new-todo">New task</label>
+      <input
+        #todoTitle
+        id="new-todo"
+        name="todoTitle"
+        type="text"
+        placeholder="What needs to get done?"
+        autocomplete="off"
+        [value]="newTodoTitle"
+        (input)="newTodoTitle = todoTitle.value"
+      />
+      <label class="visually-hidden" for="new-todo-priority">Task priority</label>
+      <select
+        id="new-todo-priority"
+        name="todoPriority"
+        class="priority-select"
+        [value]="newTodoPriority"
+        (change)="updatePriority($event, false)"
+      >
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+      <label class="visually-hidden" for="new-todo-due-date">Due date</label>
+      <input
+        id="new-todo-due-date"
+        name="dueDate"
+        class="due-date-input"
+        type="date"
+        aria-label="Due date (optional)"
+        [value]="newTodoDueDate"
+        (input)="newTodoDueDate = dueDateInput.value"
+        #dueDateInput
+      />
+      <button class="add-button" type="submit">Add task</button>
+    </form>
+
+    <nav class="filters" aria-label="Filter tasks">
+      <button
+        type="button"
+        [class.is-active]="selectedFilter === 'all'"
+        [attr.aria-pressed]="selectedFilter === 'all'"
+        (click)="selectedFilter = 'all'"
+      >
+        All
+      </button>
+      <button
+        type="button"
+        [class.is-active]="selectedFilter === 'active'"
+        [attr.aria-pressed]="selectedFilter === 'active'"
+        (click)="selectedFilter = 'active'"
+      >
+        Active
+      </button>
+      <button
+        type="button"
+        [class.is-active]="selectedFilter === 'completed'"
+        [attr.aria-pressed]="selectedFilter === 'completed'"
+        (click)="selectedFilter = 'completed'"
+      >
+        Completed
+      </button>
+      @if (completedTodoCount > 0) {
+        <button class="clear-completed-button" type="button" (click)="clearCompleted()">
+          Clear completed
+        </button>
+      }
+    </nav>
+
+    <ul class="todo-list">
+      @for (todo of filteredTodos; track todo.id) {
+        <li class="todo-item" [class.is-complete]="todo.completed">
+          @if (editingTodoId === todo.id) {
+            <form class="edit-form" (submit)="$event.preventDefault(); saveTodoEdit()">
+              <label class="visually-hidden" [for]="'edit-todo-' + todo.id">Edit task</label>
+              <input
+                #editTitle
+                class="edit-input"
+                [id]="'edit-todo-' + todo.id"
+                [value]="editTodoTitle"
+                (input)="editTodoTitle = editTitle.value"
+                (keyup.escape)="cancelEditing()"
+                autocomplete="off"
+                required
+              />
+              <label class="visually-hidden" [for]="'edit-priority-' + todo.id">Task priority</label>
+              <select
+                class="priority-select edit-priority"
+                [id]="'edit-priority-' + todo.id"
+                [value]="editTodoPriority"
+                (change)="updatePriority($event, true)"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+              <label class="visually-hidden" [for]="'edit-due-date-' + todo.id">Due date</label>
+              <input
+                #editDueDate
+                class="due-date-input edit-due-date"
+                type="date"
+                [id]="'edit-due-date-' + todo.id"
+                [value]="editTodoDueDate"
+                (input)="editTodoDueDate = editDueDate.value"
+              />
+              <button class="save-button" type="submit">Save</button>
+              <button class="cancel-button" type="button" (click)="cancelEditing()">Cancel</button>
+            </form>
+          } @else {
+            <label class="todo-label">
+              <input
+                class="todo-checkbox"
+                type="checkbox"
+                [checked]="todo.completed"
+                [attr.aria-label]="'Mark ' + todo.title + (todo.completed ? ' incomplete' : ' complete')"
+                (change)="toggleTodoCompletion(todo.id)"
+              />
+              <span class="todo-details">
+                <span class="todo-title">{{ todo.title }}</span>
+                <span class="todo-created">
+                  Added {{ todo.createdAt ? (todo.createdAt | date: 'medium') : 'Date not recorded' }}
+                </span>
+              </span>
+              <span class="priority-badge" [class]="'priority-badge priority-' + todo.priority">
+                {{ todo.priority }}
+              </span>
+              @if (todo.dueDate) {
+                <span class="due-date" [class.overdue]="isOverdue(todo.dueDate) && !todo.completed">
+                  Due {{ todo.dueDate | date: 'mediumDate' }}
+                  @if (isOverdue(todo.dueDate) && !todo.completed) {
+                    <strong>Overdue</strong>
+                  }
+                </span>
+              }
+            </label>
+            <div class="todo-actions">
+              <button
+                class="edit-button"
+                type="button"
+                [attr.aria-label]="'Edit ' + todo.title"
+                (click)="startEditing(todo.id, todo.title, todo.priority, todo.dueDate)"
+              >
+                Edit
+              </button>
+              <button
+                class="delete-button"
+                type="button"
+                [attr.aria-label]="'Delete ' + todo.title"
+                (click)="removeTodo(todo.id)"
+              >
+                Delete
+              </button>
+            </div>
+          }
+        </li>
+      } @empty {
+        <li class="empty-state">
+          <span class="empty-icon" aria-hidden="true">✓</span>
+          @if (todos().length === 0) {
+            <p>Nothing on your list yet.</p>
+            <span>Add a task above to get started.</span>
+          } @else {
+            <p>No {{ selectedFilter }} tasks.</p>
+            <span>Choose another filter to see more tasks.</span>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+</main>

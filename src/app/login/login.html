@@ -1,0 +1,46 @@
+<main class="login-page">
+  <section class="login-card" aria-labelledby="login-heading">
+    <p class="login-eyebrow">MY-APP-ANGULAR</p>
+    <h1 id="login-heading">Welcome back</h1>
+    <p class="login-subtitle">Sign in to manage your personal task list.</p>
+
+    <form class="login-form" (submit)="$event.preventDefault(); submit()">
+      <label for="login-id">ID</label>
+      <input
+        id="login-id"
+        name="id"
+        type="text"
+        autocomplete="username"
+        placeholder="Enter your ID"
+        [value]="id"
+        (input)="id = idInput.value"
+        #idInput
+        required
+      />
+
+      <label for="login-password">Password</label>
+      <input
+        id="login-password"
+        name="password"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Enter your password"
+        [value]="password"
+        (input)="password = passwordInput.value"
+        #passwordInput
+        required
+      />
+
+      @if (errorMessage) {
+        <p class="login-error" role="alert">{{ errorMessage }}</p>
+      }
+
+      <button type="submit">Sign in</button>
+    </form>
+
+    <p class="demo-note">
+      Demo credentials: ID <strong>sandip</strong>, password <strong>sandip123</strong>. This
+      frontend-only login is for learning and is not secure authentication.
+    </p>
+  </section>
+</main>
