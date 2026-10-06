@@ -1,59 +1,113 @@
-# MyAppAngular
+# My App Angular
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.0.
+My App Angular is a single-page Todo application built with Angular 22. It provides a login-first flow and task management features including priorities, due dates, filters, and browser-based persistence.
 
-## Development server
+## Project overview
 
-To start a local development server, run:
+The app starts at the login page. After a successful demo login, the user is routed to the Todo page. The Todo page supports creating, editing, completing, and removing tasks. Tasks and the demo login session are saved in the browser's `localStorage`, so they remain after a refresh in the same browser.
 
-```bash
-ng serve
+### Login flow
+
+1. Open the app at `/` or `/login`.
+2. Enter the demo ID and password below.
+3. On successful login, the app opens `/todos`.
+4. Refreshing the page keeps the demo session in that browser.
+5. Selecting **Log out** ends the local demo session and returns to the login page.
+
+### Todo features
+
+- Add tasks with a title, optional due date, and Low / Medium / High priority.
+- Edit the title, priority, and due date of an existing task.
+- Mark tasks complete or active.
+- Delete an individual task or clear all completed tasks.
+- Filter the list by All, Active, or Completed.
+- See total, active, and completed task counts.
+- See the creation date and time for tasks created after timestamps were introduced.
+- See an **Overdue** indicator for incomplete tasks whose due date is before today.
+- Keep tasks in browser storage, separated by the signed-in demo ID.
+
+## Demo credentials
+
+- **ID:** `sandip`
+- **Password:** `sandip123`
+
+> **Security:** This is a learning/demo login, not real authentication. The credentials and login check are in client-side code and are visible in the source and browser bundle. The route guard only controls client-side navigation; it does not protect data. Do not use this login to protect sensitive information. A production app needs a trusted authentication backend or identity provider, with authorization enforced server-side.
+
+## Technology
+
+- Angular 22 with standalone components and Angular Router
+- TypeScript
+- Angular signals for Todo state
+- SCSS for component styling
+- Browser `localStorage` for the demo session and Todo data
+- Vitest through the Angular CLI for unit tests
+
+## Project structure
+
+```text
+src/
+├── app/
+│   ├── app.config.ts          # Application providers and router setup
+│   ├── app.routes.ts          # Login and protected Todo routes
+│   ├── app.ts / app.html      # Root component and router outlet
+│   ├── auth/
+│   │   ├── auth.guard.ts      # Client-side route guards
+│   │   └── auth.service.ts    # Demo login session
+│   ├── login/                 # Login page component, template, and styles
+│   ├── models/
+│   │   └── todo.model.ts      # Todo and priority types
+│   ├── services/
+│   │   └── todo.service.ts    # Todo state and localStorage persistence
+│   └── to-do-list/            # Todo screen component, template, styles, tests
+├── styles.scss                # Global styles
+└── main.ts                    # Angular bootstrap
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Requirements
 
-## Code scaffolding
+- Node.js compatible with the installed Angular CLI
+- npm
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Run locally
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+From this project directory, install dependencies and start the development server:
 
 ```bash
-ng generate --help
+npm install
+npm start
 ```
 
-## Building
+Open [http://localhost:4200](http://localhost:4200) and sign in with the demo credentials. The development server reloads when source files change.
 
-To build the project run:
+## Build
 
 ```bash
-ng build
+npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+The production build is generated in `dist/`.
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Tests
 
 ```bash
-ng test
+npm test
 ```
 
-## Running end-to-end tests
+## Data and limitations
 
-For end-to-end (e2e) testing, run:
+- Data is stored only in the current browser. It is not synced across devices or browsers.
+- Clearing browser site data removes the local demo session and tasks.
+- The app currently has one configured demo account; it is not a user-registration system.
+- Tasks created before the creation timestamp field was added may show **Date not recorded**.
+- The app uses browser storage rather than a server-side database.
+
+## Useful commands
 
 ```bash
-ng e2e
+npm start                              # Run locally
+npm run build                          # Create production build
+npm test                               # Run unit tests
+npx ng generate component name         # Generate an Angular component
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+More Angular CLI information is available in the [Angular CLI documentation](https://angular.dev/tools/cli).
